@@ -15,6 +15,13 @@
       "when": 1759394199924,
       "tag": "0001_regular_lockjaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759549300466,
+      "tag": "0002_productive_mauler",
+      "breakpoints": true
     }
   ]
 }
