@@ -5,7 +5,7 @@ import { db } from "@/db/drizzle";
 import { createId } from "@paralleldrive/cuid2";
 import {
   transactions,
-  insertTranscationSchema,
+  insertTransactionSchema,
   categories,
   accounts,
 } from "@/db/schema";
@@ -112,7 +112,7 @@ const app = new Hono()
     clerkMiddleware(),
     zValidator(
       "json",
-      insertTranscationSchema.omit({
+      insertTransactionSchema.omit({
         id: true,
       })
     ),
@@ -129,6 +129,36 @@ const app = new Hono()
           ...values,
         })
         .returning();
+      return c.json({ data });
+    }
+  )
+  .post(
+    "/bulk-create",
+    clerkMiddleware(),
+    zValidator(
+      "json",
+      z.array(
+        insertTransactionSchema.omit({
+          id: true,
+        })
+      )
+    ),
+    async (c) => {
+      const auth = getAuth(c);
+      const values = c.req.valid("json");
+      if (!auth?.userId) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+      const data = await db
+        .insert(transactions)
+        .values(
+          values.map((value) => ({
+            id: createId(),
+            ...value,
+          }))
+        )
+        .returning();
+
       return c.json({ data });
     }
   )
@@ -188,7 +218,7 @@ const app = new Hono()
     ),
     zValidator(
       "json",
-      insertTranscationSchema.omit({
+      insertTransactionSchema.omit({
         id: true,
       })
     ),
